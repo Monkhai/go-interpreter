@@ -69,6 +69,34 @@ func TestReturnStatements(t *testing.T) {
 	}
 }
 
+func TestIndentifierExpression(t *testing.T) {
+	input := "foobar;"
+
+	l := lexer.New(input)
+	p := New(l)
+	program := p.ParseProgram()
+	checkPraserErrors(t, p)
+
+	if len(program.Statements) != 1 {
+		t.Fatalf("program has unxpected amount of statements. got=%d", len(program.Statements))
+	}
+	statement, ok := program.Statements[0].(*ast.ExpressionStatement)
+	if !ok {
+		t.Fatalf("program.Statements[0] is not ast.ExpressionStatement. got=%T", program.Statements[0])
+		t.Fatalf("program.Statements[0] is not ast.ExpressionStatement. got=%T", program.Statements[0])
+	}
+	ident, ok := statement.Expression.(*ast.Identifier)
+	if !ok {
+		t.Fatalf("statement.Expression is not ast.Identifier. got=%T", statement.Expression)
+	}
+	if ident.Value != "foobar" {
+		t.Fatalf("ident.Value is not foobar. got=%q", ident.Value)
+	}
+	if ident.TokenLiteral() != "foobar" {
+		t.Fatalf("ident.TokenLiteral() is not foobar. got=%q", ident.TokenLiteral())
+	}
+}
+
 func testLetStatement(t *testing.T, s ast.Statement, name string) bool {
 	if s.TokenLiteral() != "let" {
 		t.Errorf("s.TokenLiteral not 'let'. got=%T", s)
