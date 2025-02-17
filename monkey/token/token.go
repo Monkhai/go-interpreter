@@ -7,8 +7,8 @@ const (
 	EOF     = "EOF"     // end of file. tells the parser it can stop
 
 	// Identifiers + literals
-	IDENT = "IDENT" // variable names
-	INT   = "INT"   // integers
+	IDENTIFIER = "IDENT" // variable names
+	INT        = "INT"   // integers
 
 	// Operators
 	ASSIGN   = "="
@@ -61,5 +61,5 @@ func LookupIdent(ident string) TokenType {
 	if tok, ok := keywords[ident]; ok {
 		return tok
 	}
-	return IDENT
+	return IDENTIFIER
 }
