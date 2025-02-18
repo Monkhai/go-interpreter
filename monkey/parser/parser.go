@@ -47,6 +47,8 @@ func New(l *lexer.Lexer) *Parser {
 	p.registerPrefix(token.INT, p.parseIntegerLiteral)
 	p.registerPrefix(token.BANG, p.parsePrefixOperator)
 	p.registerPrefix(token.MINUS, p.parsePrefixOperator)
+	p.registerPrefix(token.DECR, p.parsePrefixOperator)
+	p.registerPrefix(token.INCR, p.parsePrefixOperator)
 
 	return p
 }
@@ -89,14 +91,13 @@ func (p *Parser) parseStatement() ast.Statement {
 	}
 }
 
-func (p *Parser) parseLetStatement() *ast.LetStatement {
+func (p *Parser) parseLetStatement() ast.Statement {
 	statement := &ast.LetStatement{Token: p.curToken}
-	// curr token = let
+
 	if !p.expectPeek(token.IDENTIFIER) {
 		return nil
 	}
 
-	//curr token = INDENTIFIER
 	statement.Name = &ast.Identifier{Token: p.curToken, Value: p.curToken.Literal}
 
 	if !p.expectPeek(token.ASSIGN) {
@@ -111,7 +112,7 @@ func (p *Parser) parseLetStatement() *ast.LetStatement {
 	return statement
 }
 
-func (p *Parser) parseReturnStatement() *ast.ReturnStatement {
+func (p *Parser) parseReturnStatement() ast.Statement {
 	statement := &ast.ReturnStatement{Token: p.curToken}
 
 	//TODO: implement expression parsing
