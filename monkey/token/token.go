@@ -11,11 +11,11 @@ const (
 	INT        = "INT"   // integers
 
 	// Operators
-	ASSIGN   = "="
-	INCR     = "++"
-	PLUS     = "+"
-	MINUS    = "-"
-	DECR     = "--"
+	ASSIGN = "="
+	// INCR     = "++"
+	PLUS  = "+"
+	MINUS = "-"
+	// DECR     = "--"
 	BANG     = "!"
 	ASTERISK = "*"
 	SLASH    = "/"

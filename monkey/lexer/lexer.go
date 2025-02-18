@@ -66,21 +66,21 @@ func (l *Lexer) NextToken() token.Token {
 	case ',':
 		tok = newToken(token.COMMA, l.ch)
 	case '+':
-		if l.peakChar() == '+' {
-			ch := l.ch
-			l.readChar()
-			tok = token.Token{Type: token.INCR, Literal: string(ch) + string(l.ch)}
-		} else {
-			tok = newToken(token.PLUS, l.ch)
-		}
+		// if l.peakChar() == '+' {
+		// 	ch := l.ch
+		// 	l.readChar()
+		// 	tok = token.Token{Type: token.INCR, Literal: string(ch) + string(l.ch)}
+		// } else {
+		tok = newToken(token.PLUS, l.ch)
+		// }
 	case '-':
-		if l.peakChar() == '-' {
-			ch := l.ch
-			l.readChar()
-			tok = token.Token{Type: token.DECR, Literal: string(ch) + string(l.ch)}
-		} else {
-			tok = newToken(token.MINUS, l.ch)
-		}
+		// if l.peakChar() == '-' {
+		// 	ch := l.ch
+		// 	l.readChar()
+		// 	tok = token.Token{Type: token.DECR, Literal: string(ch) + string(l.ch)}
+		// } else {
+		tok = newToken(token.MINUS, l.ch)
+		// }
 	case '!':
 		if l.peakChar() == '=' {
 			ch := l.ch
@@ -146,4 +146,8 @@ func (l *Lexer) skipWhitespace() {
 	for l.ch == ' ' || l.ch == '\t' || l.ch == '\n' || l.ch == '\r' {
 		l.readChar()
 	}
+}
+
+func (l *Lexer) Input() string {
+	return l.input
 }
