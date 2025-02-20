@@ -370,6 +370,46 @@ func TestIfElseExpression(t *testing.T) {
 	}
 }
 
+func TestFunctionLiteralParsing(t *testing.T) {
+	input := `fn(x, y) { x + y; }`
+
+	l := lexer.New(input)
+	p := New(l)
+	program := p.ParseProgram()
+	checkParserErrors(t, p)
+
+	if len(program.Statements) != 1 {
+		t.Fatalf("unexpected number of statements. expected 1. got=%d", len(program.Statements))
+	}
+
+	statement, ok := program.Statements[0].(*ast.ExpressionStatement)
+	if !ok {
+		t.Fatalf("program.Statements[0] not ast.ExpressionStatement. got=%T", program.Statements[0])
+	}
+	function, ok := statement.Expression.(*ast.FunctionLiteral)
+	if !ok {
+		t.Fatalf("statement.Expression not ast.FunctionLiteral. got=%T", statement.Expression)
+	}
+	if len(function.Parameters) != 2 {
+		t.Fatalf("unexpected function.Parameters length. expected 2. got=%d", len(function.Parameters))
+	}
+
+	testLiteralExpression(t, function.Parameters[0], "x")
+	testLiteralExpression(t, function.Parameters[1], "y")
+
+	if function.TokenLiteral() != "fn" {
+		t.Fatalf("expression.TokenLiteral() is not fn. got=%s", function.TokenLiteral())
+	}
+	if len(function.Body.Statements) != 1 {
+		t.Fatalf("unexpected length of expression.Body.Statements. expected 1. got=%d", len(function.Body.Statements))
+	}
+	bodyStatement, ok := function.Body.Statements[0].(*ast.ExpressionStatement)
+	if !ok {
+		t.Fatalf("expression.Body.Statements[0] not ast.ExpressionStatement. got=%T", function.Body.Statements[0])
+	}
+	testInfixExpression(t, bodyStatement.Expression, "x", "+", "y")
+}
+
 func testLetStatement(t *testing.T, s ast.Statement, name string) bool {
 	if s.TokenLiteral() != "let" {
 		t.Errorf("s.TokenLiteral not 'let'. got=%T", s)
