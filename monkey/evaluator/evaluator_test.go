@@ -88,6 +88,10 @@ func testIntegerObject(t *testing.T, obj object.Object, expected int64) bool {
 		t.Errorf("object.Value has wrong value. got=%d, want=%d", result.Value, expected)
 		return false
 	}
+	if result.Type() != object.INTEGER_OBJ {
+		t.Errorf("object.Type has wrong type. got=%s, want=%s", result.Type(), object.INTEGER_OBJ)
+		return false
+	}
 	return true
 }
 
@@ -99,6 +103,10 @@ func testBooleanObject(t *testing.T, obj object.Object, expected bool) bool {
 	}
 	if result.Value != expected {
 		t.Errorf("object.Value has wrong value. got=%t, want=%t", result.Value, expected)
+		return false
+	}
+	if result.Type() != object.BOOLEAN_OBJ {
+		t.Errorf("object.Type has wrong type. got=%s, want=%s", result.Type(), object.BOOLEAN_OBJ)
 		return false
 	}
 	return true
