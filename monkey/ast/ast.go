@@ -106,6 +106,15 @@ func (es *ExpressionStatement) String() string {
 	return ""
 }
 
+type NullExpression struct {
+	Token token.Token
+	Value interface{}
+}
+
+func (ne *NullExpression) expressionNode()      {}
+func (ne *NullExpression) TokenLiteral() string { return ne.Token.Literal }
+func (ne *NullExpression) String() string       { return ne.Token.Literal }
+
 // Implements Expression
 type IntegerLiteral struct {
 	Token token.Token

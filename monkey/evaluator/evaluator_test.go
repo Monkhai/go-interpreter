@@ -43,6 +43,20 @@ func TestBooleanExpression(t *testing.T) {
 	}{
 		{"true", true},
 		{"false", false},
+		{"1 > 2", false},
+		{"2 > 1", true},
+		{"2 < 1", false},
+		{"1 < 2", true},
+		{"1 == 2", false},
+		{"1 == 1", true},
+		{"1 != 1", false},
+		{"1 != 2", true},
+		{"true == false", false},
+		{"true == true", true},
+		{"true != true", false},
+		{"true != false", true},
+		{"null != null", false},
+		{"null == null", true},
 	}
 
 	for _, tt := range tests {
@@ -70,12 +84,45 @@ func TestBangOperator(t *testing.T) {
 	}
 }
 
+func TestIfElseExpressions(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected interface{}
+	}{
+		{"if (true) { 10 }", 10},
+		{"if (false) { 10 }", nil},
+		{"if (1) { 10 }", 10},
+		{"if (1 < 2) { 10 }", 10},
+		{"if (1 > 2) { 10 }", nil},
+		{"if (1 < 2) { 10 } else { 20 }", 10},
+		{"if (1 > 2) { 10 } else { 20 }", 20},
+	}
+
+	for _, tt := range tests {
+		evaluated := testEval(tt.input)
+		expected, ok := tt.expected.(int)
+		if ok {
+			testIntegerObject(t, evaluated, int64(expected))
+		} else {
+			testNullObject(t, evaluated)
+		}
+	}
+}
+
 func testEval(input string) object.Object {
 	l := lexer.New(input)
 	p := parser.New(l)
 	program := p.ParseProgram()
 
 	return Eval(program)
+}
+
+func testNullObject(t *testing.T, obj object.Object) bool {
+	if obj != NULL {
+		t.Errorf("object is not NULL. got=%T (%+v)", obj, obj)
+	}
+	return true
+
 }
 
 func testIntegerObject(t *testing.T, obj object.Object, expected int64) bool {
