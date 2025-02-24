@@ -1,6 +1,7 @@
 package evaluator
 
 import (
+	"fmt"
 	"monkey/ast"
 	"monkey/object"
 )
@@ -49,8 +50,11 @@ func evalProgram(statements []ast.Statement) object.Object {
 	for _, statement := range statements {
 		obj = Eval(statement)
 
-		if returnValue, ok := obj.(*object.ReturnValue); ok {
-			return returnValue.Value
+		switch obj := obj.(type) {
+		case *object.ReturnValue:
+			return obj.Value
+		case *object.Error:
+			return obj
 		}
 	}
 	return obj
@@ -62,8 +66,11 @@ func evalBlockStatement(block *ast.BlockStatement) object.Object {
 	for _, s := range block.Statements {
 		obj = Eval(s)
 
-		if obj != nil && obj.Type() == object.RETURN_VALUE_OBJ {
-			return obj
+		if obj != nil {
+			objType := obj.Type()
+			if objType == object.RETURN_VALUE_OBJ || objType == object.ERROR_OBJ {
+				return obj
+			}
 		}
 	}
 
@@ -77,7 +84,7 @@ func evalPrefixExpression(operator string, right object.Object) object.Object {
 	case "-":
 		return evalMinusPrefixOperatorExpression(right)
 	default:
-		return NULL
+		return newError("unknown operator: %s%s", operator, right.Type())
 	}
 
 }
@@ -97,7 +104,7 @@ func evalBangOperatorExpression(right object.Object) object.Object {
 
 func evalMinusPrefixOperatorExpression(right object.Object) object.Object {
 	if right.Type() != object.INTEGER_OBJ {
-		return NULL
+		return newError("unknown operator: -%s", right.Type())
 	}
 	value := right.(*object.Integer).Value
 	return &object.Integer{Value: -value}
@@ -111,9 +118,10 @@ func evalInfixExpression(operator string, left, right object.Object) object.Obje
 		return nativeBoolToObj(left == right)
 	case operator == "!=":
 		return nativeBoolToObj(left != right)
-
+	case right.Type() != left.Type():
+		return newError("type mismatch: %s %s %s", left.Type(), operator, right.Type())
 	default:
-		return NULL
+		return newError("unknown operator: %s %s %s", left.Type(), operator, right.Type())
 	}
 }
 
@@ -138,7 +146,7 @@ func evalIntegerInfixExpression(operator string, left, right object.Object) obje
 	case "!=":
 		return nativeBoolToObj(leftVal != rightVal)
 	default:
-		return NULL
+		return newError("unknown operator: %s %s %s", left.Type(), operator, right.Type())
 	}
 }
 
@@ -176,4 +184,8 @@ func nativeBoolToObj(input bool) *object.Boolean {
 	} else {
 		return FALSE
 	}
+}
+
+func newError(format string, a ...interface{}) *object.Error {
+	return &object.Error{Messgae: fmt.Sprintf(format, a...)}
 }

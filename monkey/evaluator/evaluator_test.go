@@ -114,10 +114,10 @@ func TestReturnStatements(t *testing.T) {
 		input    string
 		expected int64
 	}{
-		// {"return 10;", 10},
-		// {"return 10; 9;", 10},
-		// {"9; return 2 * 5; 9;", 10},
-		// {"9; return 2 * 5; 9;", 10},
+		{"return 10;", 10},
+		{"return 10; 9;", 10},
+		{"9; return 2 * 5; 9;", 10},
+		{"9; return 2 * 5; 9;", 10},
 		{`
 		if (10 > 1) {
 			if (10 > 1) {
@@ -134,6 +134,38 @@ func TestReturnStatements(t *testing.T) {
 	}
 }
 
+func TestErrorHandling(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected string
+	}{
+		{"5 + true;", "type mismatch: INTEGER + BOOLEAN"},
+		{"5 + true; 5;", "type mismatch: INTEGER + BOOLEAN"},
+		{"-true;", "unknown operator: -BOOLEAN"},
+		{"true + false;", "unknown operator: BOOLEAN + BOOLEAN"},
+		{"if (10 > 1) { true + false; };", "unknown operator: BOOLEAN + BOOLEAN"},
+		{`if (10 > 1) { 
+			if (10 > 1) {
+				return true + false;
+			}
+				return 1;
+		};`, "unknown operator: BOOLEAN + BOOLEAN"},
+	}
+
+	for _, tt := range tests {
+		evaluated := testEval(tt.input)
+
+		errObj, ok := evaluated.(*object.Error)
+		if !ok {
+			t.Errorf("no error object returned. got=%T (%+v)", evaluated, evaluated)
+			continue
+		}
+		if errObj.Messgae != tt.expected {
+			t.Errorf("wrong error message. expected=%q, got=%q", tt.expected, errObj.Messgae)
+		}
+	}
+}
+
 func testEval(input string) object.Object {
 	l := lexer.New(input)
 	p := parser.New(l)
@@ -147,7 +179,6 @@ func testNullObject(t *testing.T, obj object.Object) bool {
 		t.Errorf("object is not NULL. got=%T (%+v)", obj, obj)
 	}
 	return true
-
 }
 
 func testIntegerObject(t *testing.T, obj object.Object, expected int64) bool {
