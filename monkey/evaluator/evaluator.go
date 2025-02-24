@@ -20,6 +20,9 @@ func Eval(node ast.Node) object.Object {
 		return Eval(node.Expression)
 	case *ast.BlockStatement:
 		return evalStatements(node.Statements)
+	case *ast.ReturnStatement:
+		val := Eval(node.ReturnValue)
+		return &object.ReturnValue{Value: val}
 
 	// Expressions
 	case *ast.NullExpression:
@@ -45,6 +48,10 @@ func evalStatements(statements []ast.Statement) object.Object {
 	var obj object.Object
 	for _, statement := range statements {
 		obj = Eval(statement)
+
+		if returnValue, ok := obj.(*object.ReturnValue); ok {
+			return returnValue.Value
+		}
 	}
 	return obj
 }
