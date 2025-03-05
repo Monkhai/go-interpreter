@@ -7,8 +7,9 @@ const (
 	EOF     = "EOF"     // end of file. tells the parser it can stop
 
 	// Identifiers + literals
-	IDENTIFIER = "IDENT" // variable names
-	INT        = "INT"   // integers
+	IDENTIFIER = "IDENT"  // variable names
+	INT        = "INT"    // integers
+	STRING     = "STRING" // strings
 
 	// Operators
 	ASSIGN = "="
