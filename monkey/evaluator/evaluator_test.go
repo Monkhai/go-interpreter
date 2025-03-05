@@ -36,6 +36,21 @@ func TestIntegerExpression(t *testing.T) {
 		testIntegerObject(t, evaluated, tt.expected)
 	}
 }
+
+func TestStringObject(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected string
+	}{
+		{`"foobar"`, "foobar"},
+		{`"hello world"`, "hello world"},
+	}
+
+	for _, tt := range tests {
+		evaluated := testEval(tt.input)
+		testStringObject(t, evaluated, tt.expected)
+	}
+}
 func TestBooleanExpression(t *testing.T) {
 	tests := []struct {
 		input    string
@@ -248,6 +263,23 @@ func testIntegerObject(t *testing.T, obj object.Object, expected int64) bool {
 		return false
 	}
 	if result.Type() != object.INTEGER_OBJ {
+		t.Errorf("object.Type has wrong type. got=%s, want=%s", result.Type(), object.INTEGER_OBJ)
+		return false
+	}
+	return true
+}
+
+func testStringObject(t *testing.T, obj object.Object, expected string) bool {
+	result, ok := obj.(*object.String)
+	if !ok {
+		t.Errorf("object is not object.String. got=%T (%+v)", obj, obj)
+		return false
+	}
+	if result.Value != expected {
+		t.Errorf("object.Value has wrong value. got=%s, want=%s", result.Value, expected)
+		return false
+	}
+	if result.Type() != object.STRING_OBJ {
 		t.Errorf("object.Type has wrong type. got=%s, want=%s", result.Type(), object.INTEGER_OBJ)
 		return false
 	}
