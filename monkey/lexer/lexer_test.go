@@ -32,6 +32,7 @@ null;
 "foobar";
 
 "foo bar";
+'
 `
 
 	tests := []struct {
@@ -116,6 +117,7 @@ null;
 		{token.SEMICOLON, ";"},
 		{token.STRING, "foo bar"},
 		{token.SEMICOLON, ";"},
+		{token.ILLEGAL, "'"},
 		{token.EOF, ""},
 	}
 

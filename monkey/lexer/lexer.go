@@ -134,7 +134,7 @@ func (l *Lexer) readString() string {
 	for {
 		l.readChar()
 
-		if l.ch == '"' || l.ch == '0' {
+		if l.ch == '"' || l.ch == 0 {
 			break
 		}
 	}

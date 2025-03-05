@@ -175,6 +175,7 @@ func (p *Parser) parseExpression(precedence int) ast.Expression {
 func (p *Parser) parseNull() ast.Expression {
 	return &ast.NullExpression{Token: p.curToken, Value: nil}
 }
+
 func (p *Parser) parseIdentifier() ast.Expression {
 	return &ast.Identifier{Token: p.curToken, Value: p.curToken.Literal}
 }
