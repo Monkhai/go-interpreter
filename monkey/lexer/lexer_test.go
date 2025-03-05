@@ -29,10 +29,12 @@ if (5 < 10) {
 
 null;
 
-"foobar";
+"foobar"
+"foo bar"
 
-"foo bar";
 '
+
+[1,2];
 `
 
 	tests := []struct {
@@ -114,10 +116,14 @@ null;
 		{token.NULL, "null"},
 		{token.SEMICOLON, ";"},
 		{token.STRING, "foobar"},
-		{token.SEMICOLON, ";"},
 		{token.STRING, "foo bar"},
-		{token.SEMICOLON, ";"},
 		{token.ILLEGAL, "'"},
+		{token.LBRACKET, "["},
+		{token.INT, "1"},
+		{token.COMMA, ","},
+		{token.INT, "2"},
+		{token.RBRACKET, "]"},
+		{token.SEMICOLON, ";"},
 		{token.EOF, ""},
 	}
 
