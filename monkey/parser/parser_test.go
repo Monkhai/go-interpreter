@@ -154,6 +154,25 @@ func TestIntegerLiteralExpression(t *testing.T) {
 	if !testIntegerLiteral(t, statement.Expression, 5) {
 		t.Fatalf("failed testIntegerLiteral. got=%q", statement.Expression)
 	}
+}
+func TestStringLiteral(t *testing.T) {
+	input := `"foobar"`
+
+	l := lexer.New(input)
+	p := New(l)
+	program := p.ParseProgram()
+	checkParserErrors(t, p)
+
+	if len(program.Statements) != 1 {
+		t.Fatalf("program has unxpected amount of statements. got=%d", len(program.Statements))
+	}
+	statement, ok := program.Statements[0].(*ast.ExpressionStatement)
+	if !ok {
+		t.Fatalf("program.Statements[0] is not ast.ExpressionStatement. got=%T", program.Statements[0])
+	}
+	if !testStringLiteral(t, statement.Expression, "foobar") {
+		t.Fatalf("failed testIntegerLiteral. got=%q", statement.Expression)
+	}
 
 }
 
@@ -551,6 +570,23 @@ func testIntegerLiteral(t *testing.T, exp ast.Expression, value int64) bool {
 	}
 	if literal.TokenLiteral() != fmt.Sprintf("%d", value) {
 		t.Errorf("literal.TokenLiteral() not %d. got=%s", value, literal.TokenLiteral())
+		return false
+	}
+	return true
+}
+
+func testStringLiteral(t *testing.T, exp ast.Expression, value string) bool {
+	literal, ok := exp.(*ast.StringLiteral)
+	if !ok {
+		t.Fatalf("statement.Expression not *ast.StringLiteral. got=%T", exp)
+		return false
+	}
+	if literal.Value != value {
+		t.Errorf("literal.value not 5. got=%s", literal.Value)
+		return false
+	}
+	if literal.TokenLiteral() != value {
+		t.Errorf("literal.TokenLiteral() not %s. got=%s", value, literal.TokenLiteral())
 		return false
 	}
 	return true
