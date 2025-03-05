@@ -6,6 +6,23 @@ import (
 	"monkey/object"
 )
 
+var builtins = map[string]*object.Builtin{
+	"len": {
+		Fn: func(args ...object.Object) object.Object {
+			if len(args) != 1 {
+				return newError("wrong number of arguments. got=%d, want=1", len(args))
+			}
+
+			switch arg := args[0].(type) {
+			case *object.String:
+				return &object.Integer{Value: int64(len(arg.Value))}
+			default:
+				return newError("argument to `len` not supported, got %s", args[0].Type())
+			}
+		},
+	},
+}
+
 var (
 	TRUE  = &object.Boolean{Value: true}
 	FALSE = &object.Boolean{Value: false}
@@ -64,7 +81,6 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 		if len(args) == 1 && isError(args[0]) {
 			return args[0]
 		}
-
 		return applyFunction(function, args)
 	}
 	return nil
@@ -215,23 +231,27 @@ func evalIfExpression(ie *ast.IfExpression, env *object.Environment) object.Obje
 }
 
 func evalIdentifier(node *ast.Identifier, env *object.Environment) object.Object {
-	val, ok := env.Get(node.Value)
-	if !ok {
-		return newError("identifier not found: %s", node.Value)
+	if val, ok := env.Get(node.Value); ok {
+		return val
 	}
-	return val
+	if val, ok := builtins[node.Value]; ok {
+		return val
+	}
+	return newError("identifier not found: %s", node.Value)
 }
 
 func applyFunction(fn object.Object, args []object.Object) object.Object {
-	function, ok := fn.(*object.Function)
-	if !ok {
-		return newError("not a function: %s", fn.Type())
+	switch function := fn.(type) {
+	case *object.Function:
+		fnEnv := extendFuncEnv(function, args)
+		evaluated := Eval(function.Body, fnEnv)
+		return unwrapReturnValue(evaluated)
+	case *object.Builtin:
+		return function.Fn(args...)
+	default:
+		return newError("not a function: %s", function.Type())
+
 	}
-
-	fnEnv := extendFuncEnv(function, args)
-	evaluated := Eval(function.Body, fnEnv)
-	return unwrapReturnValue(evaluated)
-
 }
 
 func extendFuncEnv(fn *object.Function, args []object.Object) *object.Environment {
@@ -274,7 +294,7 @@ func nativeBoolToObj(input bool) *object.Boolean {
 	}
 }
 
-func newError(format string, a ...interface{}) *object.Error {
+func newError(format string, a ...any) *object.Error {
 	return &object.Error{Messgae: fmt.Sprintf(format, a...)}
 }
 
