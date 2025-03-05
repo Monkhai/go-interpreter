@@ -51,6 +51,20 @@ func TestStringObject(t *testing.T) {
 		testStringObject(t, evaluated, tt.expected)
 	}
 }
+
+func TestStringConcatination(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected string
+	}{
+		{`"hello" + " " + "world"`, "hello world"},
+	}
+
+	for _, tt := range tests {
+		evaluated := testEval(tt.input)
+		testStringObject(t, evaluated, tt.expected)
+	}
+}
 func TestBooleanExpression(t *testing.T) {
 	tests := []struct {
 		input    string
@@ -158,6 +172,7 @@ func TestErrorHandling(t *testing.T) {
 		{"5 + true; 5;", "type mismatch: INTEGER + BOOLEAN"},
 		{"-true;", "unknown operator: -BOOLEAN"},
 		{"true + false;", "unknown operator: BOOLEAN + BOOLEAN"},
+		{`"Hello" - "World"`, "unknown operator: STRING - STRING"},
 		{"if (10 > 1) { true + false; };", "unknown operator: BOOLEAN + BOOLEAN"},
 		{`if (10 > 1) { 
 			if (10 > 1) {
